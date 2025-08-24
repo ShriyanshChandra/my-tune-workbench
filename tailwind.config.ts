@@ -61,6 +61,12 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				music: {
+					player: 'hsl(var(--music-player))',
+					sidebar: 'hsl(var(--music-sidebar))',
+					hover: 'hsl(var(--music-hover))',
+					glass: 'hsl(var(--music-glass))'
 				}
 			},
 			borderRadius: {
