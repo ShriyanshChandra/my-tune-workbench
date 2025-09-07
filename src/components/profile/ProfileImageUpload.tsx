@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Camera, Upload, X } from 'lucide-react';
+import { Camera, Upload, X, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { setupStorageBucket } from '@/utils/setupStorage';
 
 interface ProfileImageUploadProps {
   currentImageUrl?: string | null;
@@ -23,6 +25,7 @@ export const ProfileImageUpload: React.FC<ProfileImageUploadProps> = ({
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [setupInstructions, setSetupInstructions] = useState<string[] | null>(null);
   const { toast } = useToast();
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -56,49 +59,53 @@ export const ProfileImageUpload: React.FC<ProfileImageUploadProps> = ({
     if (!selectedFile) return;
 
     setUploading(true);
+    setSetupInstructions(null);
+    
     try {
+      // First try to set up storage bucket
+      const setupResult = await setupStorageBucket();
+      
+      if (!setupResult.success) {
+        if (setupResult.instructions) {
+          setSetupInstructions(setupResult.instructions);
+        }
+        throw new Error(setupResult.error || 'Storage setup failed');
+      }
+
       const fileExt = selectedFile.name.split('.').pop();
       const fileName = `${userId}-${Date.now()}.${fileExt}`;
       const filePath = `avatars/${fileName}`;
 
-      // First, try to create the bucket if it doesn't exist
-      const { error: bucketError } = await supabase.storage.createBucket('user-uploads', {
-        public: true,
-        allowedMimeTypes: ['image/*'],
-        fileSizeLimit: 5242880 // 5MB
-      });
-
-      // Ignore error if bucket already exists
-      if (bucketError && !bucketError.message.includes('already exists')) {
-        console.warn('Could not create bucket:', bucketError);
-      }
-
+      // Upload the file
       const { error: uploadError } = await supabase.storage
         .from('user-uploads')
         .upload(filePath, selectedFile);
 
       if (uploadError) {
-        if (uploadError.message.includes('Bucket not found')) {
-          throw new Error('Storage bucket not configured. Please contact support to set up image uploads.');
-        }
-        throw uploadError;
+        console.error('Upload error:', uploadError);
+        throw new Error(`Upload failed: ${uploadError.message}`);
       }
 
       const { data: { publicUrl } } = supabase.storage
         .from('user-uploads')
         .getPublicUrl(filePath);
 
+      // Update the user's profile with the new avatar URL
       const { error: updateError } = await supabase
         .from('profiles')
         .update({ avatar_url: publicUrl })
         .eq('id', userId);
 
-      if (updateError) throw updateError;
+      if (updateError) {
+        console.error('Profile update error:', updateError);
+        throw new Error(`Failed to update profile: ${updateError.message}`);
+      }
 
       onImageUpdate(publicUrl);
       setIsDialogOpen(false);
       setSelectedFile(null);
       setPreviewUrl(null);
+      setSetupInstructions(null);
       
       toast({
         title: 'Success',
@@ -106,9 +113,22 @@ export const ProfileImageUpload: React.FC<ProfileImageUploadProps> = ({
       });
     } catch (error: any) {
       console.error('Error uploading image:', error);
+      
+      let errorMessage = 'Failed to upload image. Please try again.';
+      
+      if (error.message.includes('Storage setup failed') || error.message.includes('not accessible')) {
+        errorMessage = 'Storage is not set up. Please follow the instructions below or contact your administrator.';
+      } else if (error.message.includes('not found')) {
+        errorMessage = 'Storage bucket not found. Please follow the setup instructions below.';
+      } else if (error.message.includes('Unauthorized')) {
+        errorMessage = 'You don\'t have permission to upload images.';
+      } else if (error.message.includes('too large')) {
+        errorMessage = 'Image is too large. Please choose an image smaller than 5MB.';
+      }
+      
       toast({
         title: 'Upload Failed',
-        description: error.message || 'Failed to upload image. Please try again.',
+        description: errorMessage,
         variant: 'destructive',
       });
     } finally {
@@ -149,6 +169,21 @@ export const ProfileImageUpload: React.FC<ProfileImageUploadProps> = ({
         </DialogHeader>
         
         <div className="space-y-6">
+          {/* Setup Instructions Alert */}
+          {setupInstructions && (
+            <Alert className="border-orange-200 bg-orange-50">
+              <AlertCircle className="h-4 w-4 text-orange-600" />
+              <AlertDescription className="text-orange-800">
+                <div className="font-semibold mb-2">Manual Setup Required:</div>
+                <ol className="list-decimal list-inside space-y-1 text-sm">
+                  {setupInstructions.map((instruction, index) => (
+                    <li key={index}>{instruction}</li>
+                  ))}
+                </ol>
+              </AlertDescription>
+            </Alert>
+          )}
+
           {/* Current/Preview Image */}
           <div className="flex justify-center">
             <Avatar className="h-32 w-32">
