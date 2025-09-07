@@ -243,22 +243,61 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onGetStarted }) => {
         transition={{ delay: 2 }}
       >
         <AnimatePresence>
-          {collectedBadges.map((badgeIndex) => (
+          {collectedBadges.map((badgeIndex, i) => (
             <motion.div
               key={badgeIndex}
-              initial={{ scale: 0, y: 100, opacity: 0 }}
-              animate={{ scale: 1, y: 0, opacity: 1 }}
-              className="w-16 h-16 hexagon-shape bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center shadow-lg"
+              initial={{ scale: 0, y: 100, opacity: 0, rotate: 180 }}
+              animate={{ 
+                scale: 1, 
+                y: 0, 
+                opacity: 1, 
+                rotate: 0,
+              }}
+              whileHover={{ 
+                scale: 1.1, 
+                rotate: 5,
+                boxShadow: "0 10px 30px rgba(0,0,0,0.3)"
+              }}
+              transition={{
+                type: "spring",
+                stiffness: 200,
+                damping: 15,
+                delay: i * 0.2
+              }}
+              className="relative w-16 h-16 flex items-center justify-center cursor-pointer"
               style={{
-                clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)'
+                background: `linear-gradient(135deg, ${scenes[badgeIndex].badge.color.replace('bg-', '')} 0%, ${scenes[badgeIndex].badge.color.replace('bg-', '').replace('-500', '-600')} 100%)`,
+                clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
+                boxShadow: '0 8px 25px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.2)'
               }}
             >
               {React.createElement(scenes[badgeIndex].badge.icon, {
-                className: "w-6 h-6 text-white"
+                className: "w-6 h-6 text-white drop-shadow-lg"
               })}
+              
+              {/* Badge glow effect */}
+              <motion.div
+                animate={{ opacity: [0.4, 0.8, 0.4] }}
+                transition={{ duration: 2, repeat: Infinity, delay: i * 0.3 }}
+                className="absolute inset-0 bg-white/10 rounded-full blur-sm"
+                style={{
+                  clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)'
+                }}
+              />
             </motion.div>
           ))}
         </AnimatePresence>
+        
+        {/* Badge collection counter */}
+        {collectedBadges.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="text-white/80 text-sm font-semibold text-center bg-black/20 backdrop-blur-sm rounded-full px-2 py-1"
+          >
+            {collectedBadges.length}/{scenes.length}
+          </motion.div>
+        )}
       </motion.div>
 
       {/* Explorer character */}
@@ -266,65 +305,173 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onGetStarted }) => {
         className="absolute bottom-20 z-20"
         animate={{
           x: currentScene * 25 + 10 + '%',
-          y: [0, -5, 0]
+          y: [0, -3, 0]
         }}
         transition={{
           x: { duration: 3, ease: "easeInOut" },
-          y: { duration: 2, repeat: Infinity, ease: "easeInOut" }
+          y: { duration: 2.5, repeat: Infinity, ease: "easeInOut" }
         }}
       >
         <div className="relative">
-          {/* Explorer silhouette */}
+          {/* Explorer silhouette - more realistic proportions */}
           <motion.div
             animate={{
-              scaleX: [1, 0.95, 1],
+              scaleX: [1, 0.98, 1],
             }}
-            transition={{ duration: 1, repeat: Infinity }}
-            className="w-20 h-20 relative"
+            transition={{ duration: 1.2, repeat: Infinity }}
+            className="w-24 h-32 relative"
           >
+            {/* Adventure hat */}
+            <div className="absolute top-0 left-1/2 w-10 h-3 bg-gradient-to-b from-black/90 to-black/70 rounded-full transform -translate-x-1/2" />
+            
             {/* Head */}
-            <div className="absolute top-0 left-1/2 w-8 h-8 bg-black rounded-full transform -translate-x-1/2" />
-            {/* Body */}
-            <div className="absolute top-6 left-1/2 w-6 h-12 bg-black rounded-sm transform -translate-x-1/2" />
-            {/* Backpack */}
-            <div className="absolute top-6 right-2 w-4 h-8 bg-black/80 rounded-sm" />
-            {/* Camera */}
-            <div className="absolute top-8 left-1/4 w-3 h-2 bg-black/90 rounded-sm" />
-            {/* Arms */}
-            <div className="absolute top-10 left-2 w-2 h-6 bg-black rounded-full transform rotate-12" />
-            <div className="absolute top-10 right-2 w-2 h-6 bg-black rounded-full transform -rotate-12" />
-            {/* Legs */}
+            <div className="absolute top-2 left-1/2 w-7 h-7 bg-gradient-to-b from-black/95 to-black/85 rounded-full transform -translate-x-1/2" />
+            
+            {/* Neck */}
+            <div className="absolute top-7 left-1/2 w-2 h-2 bg-black/90 transform -translate-x-1/2" />
+            
+            {/* Torso */}
+            <div className="absolute top-9 left-1/2 w-8 h-14 bg-gradient-to-b from-black/95 to-black/85 rounded-t-lg transform -translate-x-1/2" />
+            
+            {/* Backpack - more detailed */}
+            <div className="absolute top-8 right-1 w-5 h-10 bg-gradient-to-br from-black/80 to-black/60 rounded-lg">
+              <div className="absolute top-1 left-1 w-3 h-2 bg-black/40 rounded-sm" />
+              <div className="absolute bottom-1 left-0.5 w-1 h-3 bg-black/50 rounded-full" />
+            </div>
+            
+            {/* Camera in hands - photography pose */}
             <motion.div
-              animate={{ rotate: [-5, 5, -5] }}
-              transition={{ duration: 0.8, repeat: Infinity }}
-              className="absolute bottom-0 left-3 w-2 h-8 bg-black rounded-full"
+              animate={{
+                rotate: isPhotographing ? [0, -5, 0] : 0,
+                y: isPhotographing ? [0, -1, 0] : 0
+              }}
+              transition={{ duration: 0.3 }}
+              className="absolute top-12 left-2 w-4 h-3 bg-gradient-to-r from-black/90 to-black/70 rounded-sm"
+            >
+              <div className="absolute top-0.5 right-0 w-2 h-1 bg-black/60 rounded-full" />
+              <div className="absolute top-0 left-1 w-1 h-1 bg-black/80 rounded-full" />
+            </motion.div>
+            
+            {/* Left arm (holding camera) */}
+            <motion.div
+              animate={{ 
+                rotate: isPhotographing ? [-15, -10, -15] : [-10, -5, -10]
+              }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+              className="absolute top-11 left-1.5 w-2 h-8 bg-gradient-to-b from-black/90 to-black/70 rounded-full origin-top"
+            />
+            
+            {/* Right arm (supporting camera) */}
+            <motion.div
+              animate={{ 
+                rotate: isPhotographing ? [20, 25, 20] : [15, 20, 15]
+              }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+              className="absolute top-11 right-1.5 w-2 h-8 bg-gradient-to-b from-black/90 to-black/70 rounded-full origin-top"
+            />
+            
+            {/* Left leg - walking animation */}
+            <motion.div
+              animate={{ 
+                rotate: [-8, 8, -8],
+                x: [0, -0.5, 0]
+              }}
+              transition={{ duration: 1.2, repeat: Infinity }}
+              className="absolute bottom-0 left-2 w-3 h-10 bg-gradient-to-b from-black/90 to-black/70 rounded-full origin-top"
+            />
+            
+            {/* Right leg - walking animation */}
+            <motion.div
+              animate={{ 
+                rotate: [8, -8, 8],
+                x: [0, 0.5, 0]
+              }}
+              transition={{ duration: 1.2, repeat: Infinity }}
+              className="absolute bottom-0 right-2 w-3 h-10 bg-gradient-to-b from-black/90 to-black/70 rounded-full origin-top"
+            />
+
+            {/* Feet */}
+            <motion.div
+              animate={{ x: [-0.5, 0.5, -0.5] }}
+              transition={{ duration: 1.2, repeat: Infinity }}
+              className="absolute bottom-0 left-1.5 w-4 h-2 bg-black/80 rounded-full"
             />
             <motion.div
-              animate={{ rotate: [5, -5, 5] }}
-              transition={{ duration: 0.8, repeat: Infinity }}
-              className="absolute bottom-0 right-3 w-2 h-8 bg-black rounded-full"
+              animate={{ x: [0.5, -0.5, 0.5] }}
+              transition={{ duration: 1.2, repeat: Infinity }}
+              className="absolute bottom-0 right-1.5 w-4 h-2 bg-black/80 rounded-full"
             />
           </motion.div>
 
-          {/* Camera flash effect */}
+          {/* Enhanced camera flash effect */}
           <AnimatePresence>
             {isPhotographing && (
-              <motion.div
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 3, opacity: [0, 1, 0] }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.8 }}
-                className="absolute top-1/2 left-1/2 w-4 h-4 bg-white rounded-full transform -translate-x-1/2 -translate-y-1/2"
-                style={{ boxShadow: '0 0 50px rgba(255,255,255,0.8)' }}
-              />
+              <>
+                {/* Main flash */}
+                <motion.div
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ 
+                    scale: [0, 4, 2, 0], 
+                    opacity: [0, 1, 0.8, 0] 
+                  }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.8, ease: "easeOut" }}
+                  className="absolute top-12 left-4 w-6 h-6 bg-white rounded-full transform -translate-x-1/2 -translate-y-1/2"
+                  style={{ 
+                    boxShadow: '0 0 80px rgba(255,255,255,0.9), 0 0 120px rgba(255,255,255,0.6)' 
+                  }}
+                />
+                
+                {/* Flash rays */}
+                {[...Array(8)].map((_, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ scale: 0, opacity: 0 }}
+                    animate={{ 
+                      scale: [0, 1, 0], 
+                      opacity: [0, 0.8, 0] 
+                    }}
+                    transition={{ 
+                      duration: 0.6, 
+                      delay: i * 0.05,
+                      ease: "easeOut" 
+                    }}
+                    className="absolute top-12 left-4 w-1 h-8 bg-white/60 origin-bottom"
+                    style={{
+                      transform: `rotate(${i * 45}deg) translateX(-50%) translateY(-50%)`,
+                      transformOrigin: '50% 100%'
+                    }}
+                  />
+                ))}
+              </>
             )}
           </AnimatePresence>
 
-          {/* Glowing trail */}
+          {/* Enhanced glowing trail with particles */}
           <motion.div
-            animate={{ opacity: [0.2, 0.6, 0.2] }}
-            transition={{ duration: 1.5, repeat: Infinity }}
-            className="absolute -bottom-2 left-1/2 w-6 h-2 bg-blue-400/60 rounded-full blur-sm transform -translate-x-1/2"
+            animate={{ opacity: [0.3, 0.8, 0.3] }}
+            transition={{ duration: 2, repeat: Infinity }}
+            className="absolute -bottom-3 left-1/2 w-8 h-3 bg-gradient-to-r from-transparent via-cyan-400/60 to-transparent rounded-full blur-sm transform -translate-x-1/2"
+          />
+          
+          {/* Footstep particles */}
+          <motion.div
+            animate={{ 
+              opacity: [0, 1, 0],
+              scale: [0.8, 1.2, 0.8],
+              y: [0, -10, -20]
+            }}
+            transition={{ duration: 1.5, repeat: Infinity, delay: 0.5 }}
+            className="absolute -bottom-1 left-3 w-2 h-2 bg-cyan-400/40 rounded-full"
+          />
+          <motion.div
+            animate={{ 
+              opacity: [0, 1, 0],
+              scale: [0.8, 1.2, 0.8],
+              y: [0, -10, -20]
+            }}
+            transition={{ duration: 1.5, repeat: Infinity, delay: 1.1 }}
+            className="absolute -bottom-1 right-3 w-2 h-2 bg-cyan-400/40 rounded-full"
           />
         </div>
       </motion.div>
@@ -432,28 +579,91 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onGetStarted }) => {
         </div>
       </motion.div>
 
-      {/* Ambient particles */}
+      {/* Enhanced ambient particles */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {[...Array(30)].map((_, i) => (
+        {/* Main floating particles */}
+        {[...Array(40)].map((_, i) => (
           <motion.div
-            key={i}
+            key={`particle-${i}`}
             animate={{
-              y: [0, -20, 0],
-              x: [0, 10, -5, 0],
-              opacity: [0.2, 0.8, 0.2]
+              y: [0, -30, 0],
+              x: [0, Math.sin(i) * 15, 0],
+              opacity: [0.2, 0.9, 0.2],
+              scale: [0.5, 1.2, 0.5]
             }}
             transition={{
               duration: 6 + i * 0.3,
               repeat: Infinity,
-              delay: i * 0.2
+              delay: i * 0.15,
+              ease: "easeInOut"
             }}
-            className="absolute w-1 h-1 bg-white/40 rounded-full"
+            className="absolute w-1 h-1 bg-white/50 rounded-full"
             style={{
               left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`
+              top: `${Math.random() * 100}%`,
+              filter: 'blur(0.5px)'
             }}
           />
         ))}
+        
+        {/* Scene-specific particles */}
+        {currentScene === 3 && (
+          // Cosmos scene - AI network particles
+          [...Array(20)].map((_, i) => (
+            <motion.div
+              key={`cosmos-particle-${i}`}
+              animate={{
+                opacity: [0.3, 1, 0.3],
+                scale: [0.8, 1.5, 0.8],
+                x: [0, Math.cos(i * 0.5) * 20, 0],
+                y: [0, Math.sin(i * 0.5) * 20, 0]
+              }}
+              transition={{
+                duration: 4 + i * 0.2,
+                repeat: Infinity,
+                delay: i * 0.1
+              }}
+              className="absolute w-2 h-2 bg-cyan-400/60 rounded-full"
+              style={{
+                left: `${20 + (i * 4)}%`,
+                top: `${30 + Math.sin(i) * 30}%`,
+                boxShadow: '0 0 10px rgba(6, 182, 212, 0.5)'
+              }}
+            />
+          ))
+        )}
+        
+        {/* Scene transition sparkles */}
+        <AnimatePresence>
+          {isPhotographing && (
+            [...Array(15)].map((_, i) => (
+              <motion.div
+                key={`sparkle-${i}`}
+                initial={{ 
+                  opacity: 0, 
+                  scale: 0,
+                  x: window.innerWidth * (0.1 + currentScene * 0.25),
+                  y: window.innerHeight * 0.6
+                }}
+                animate={{
+                  opacity: [0, 1, 0],
+                  scale: [0, 1.5, 0],
+                  x: window.innerWidth * (0.1 + currentScene * 0.25) + (Math.random() - 0.5) * 200,
+                  y: window.innerHeight * 0.6 + (Math.random() - 0.5) * 200,
+                  rotate: [0, 180, 360]
+                }}
+                exit={{ opacity: 0 }}
+                transition={{
+                  duration: 1.5,
+                  delay: i * 0.05,
+                  ease: "easeOut"
+                }}
+                className="absolute w-2 h-2 bg-yellow-300 rounded-full"
+                style={{ filter: 'blur(0.5px)' }}
+              />
+            ))
+          )}
+        </AnimatePresence>
       </div>
     </section>
   )
