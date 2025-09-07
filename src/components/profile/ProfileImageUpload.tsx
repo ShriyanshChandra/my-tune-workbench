@@ -61,11 +61,28 @@ export const ProfileImageUpload: React.FC<ProfileImageUploadProps> = ({
       const fileName = `${userId}-${Date.now()}.${fileExt}`;
       const filePath = `avatars/${fileName}`;
 
+      // First, try to create the bucket if it doesn't exist
+      const { error: bucketError } = await supabase.storage.createBucket('user-uploads', {
+        public: true,
+        allowedMimeTypes: ['image/*'],
+        fileSizeLimit: 5242880 // 5MB
+      });
+
+      // Ignore error if bucket already exists
+      if (bucketError && !bucketError.message.includes('already exists')) {
+        console.warn('Could not create bucket:', bucketError);
+      }
+
       const { error: uploadError } = await supabase.storage
         .from('user-uploads')
         .upload(filePath, selectedFile);
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        if (uploadError.message.includes('Bucket not found')) {
+          throw new Error('Storage bucket not configured. Please contact support to set up image uploads.');
+        }
+        throw uploadError;
+      }
 
       const { data: { publicUrl } } = supabase.storage
         .from('user-uploads')
@@ -87,11 +104,11 @@ export const ProfileImageUpload: React.FC<ProfileImageUploadProps> = ({
         title: 'Success',
         description: 'Profile image updated successfully!',
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error uploading image:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to upload image. Please try again.',
+        title: 'Upload Failed',
+        description: error.message || 'Failed to upload image. Please try again.',
         variant: 'destructive',
       });
     } finally {
@@ -120,12 +137,15 @@ export const ProfileImageUpload: React.FC<ProfileImageUploadProps> = ({
         </div>
       </DialogTrigger>
       
-      <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md" aria-describedby="profile-image-description">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Camera className="h-5 w-5" />
             Update Profile Image
           </DialogTitle>
+          <p id="profile-image-description" className="text-sm text-muted-foreground">
+            Upload a new profile image from your device
+          </p>
         </DialogHeader>
         
         <div className="space-y-6">

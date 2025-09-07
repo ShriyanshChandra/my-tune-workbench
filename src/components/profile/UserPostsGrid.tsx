@@ -149,8 +149,8 @@ export const UserPostsGrid: React.FC<UserPostsGridProps> = ({ userId }) => {
                 </div>
               </DialogTrigger>
               
-              <DialogContent className="max-w-2xl">
-                <div className="space-y-4">
+              <DialogContent className="max-w-2xl" aria-describedby="post-detail-description">
+                <div className="space-y-4" id="post-detail-description">
                   {getPostImage(post) && (
                     <AspectRatio ratio={16/9}>
                       <img 

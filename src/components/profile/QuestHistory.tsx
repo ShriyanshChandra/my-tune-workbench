@@ -229,10 +229,13 @@ export const QuestHistory: React.FC<QuestHistoryProps> = ({ userId }) => {
                             </AspectRatio>
                           </div>
                         </DialogTrigger>
-                        <DialogContent className="max-w-2xl">
+                        <DialogContent className="max-w-2xl" aria-describedby="quest-submission-description">
                           <DialogHeader>
                             <DialogTitle>{submission.quest?.title || 'Quest Submission'}</DialogTitle>
                           </DialogHeader>
+                          <div id="quest-submission-description" className="sr-only">
+                            Quest submission details and image
+                          </div>
                           <AspectRatio ratio={16/9}>
                             <img 
                               src={getSubmissionImage(submission)!} 
