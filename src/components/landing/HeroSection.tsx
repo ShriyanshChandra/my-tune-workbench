@@ -300,107 +300,79 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onGetStarted }) => {
         )}
       </motion.div>
 
-      {/* Explorer character */}
+      {/* Stick man explorer */}
       <motion.div
         className="absolute bottom-20 z-20"
         animate={{
           x: currentScene * 25 + 10 + '%',
-          y: [0, -3, 0]
+          y: [0, -2, 0]
         }}
         transition={{
           x: { duration: 3, ease: "easeInOut" },
-          y: { duration: 2.5, repeat: Infinity, ease: "easeInOut" }
+          y: { duration: 2, repeat: Infinity, ease: "easeInOut" }
         }}
       >
         <div className="relative">
-          {/* Explorer silhouette - more realistic proportions */}
+          {/* Simple stick figure */}
           <motion.div
-            animate={{
-              scaleX: [1, 0.98, 1],
-            }}
-            transition={{ duration: 1.2, repeat: Infinity }}
-            className="w-24 h-32 relative"
+            className="w-16 h-20 relative"
           >
-            {/* Adventure hat */}
-            <div className="absolute top-0 left-1/2 w-10 h-3 bg-gradient-to-b from-black/90 to-black/70 rounded-full transform -translate-x-1/2" />
+            {/* Head - circle */}
+            <div className="absolute top-0 left-1/2 w-4 h-4 border-2 border-white rounded-full transform -translate-x-1/2 bg-white/10" />
             
-            {/* Head */}
-            <div className="absolute top-2 left-1/2 w-7 h-7 bg-gradient-to-b from-black/95 to-black/85 rounded-full transform -translate-x-1/2" />
+            {/* Body - vertical line */}
+            <div className="absolute top-4 left-1/2 w-0.5 h-10 bg-white transform -translate-x-1/2" />
             
-            {/* Neck */}
-            <div className="absolute top-7 left-1/2 w-2 h-2 bg-black/90 transform -translate-x-1/2" />
-            
-            {/* Torso */}
-            <div className="absolute top-9 left-1/2 w-8 h-14 bg-gradient-to-b from-black/95 to-black/85 rounded-t-lg transform -translate-x-1/2" />
-            
-            {/* Backpack - more detailed */}
-            <div className="absolute top-8 right-1 w-5 h-10 bg-gradient-to-br from-black/80 to-black/60 rounded-lg">
-              <div className="absolute top-1 left-1 w-3 h-2 bg-black/40 rounded-sm" />
-              <div className="absolute bottom-1 left-0.5 w-1 h-3 bg-black/50 rounded-full" />
-            </div>
-            
-            {/* Camera in hands - photography pose */}
-            <motion.div
-              animate={{
-                rotate: isPhotographing ? [0, -5, 0] : 0,
-                y: isPhotographing ? [0, -1, 0] : 0
-              }}
-              transition={{ duration: 0.3 }}
-              className="absolute top-12 left-2 w-4 h-3 bg-gradient-to-r from-black/90 to-black/70 rounded-sm"
-            >
-              <div className="absolute top-0.5 right-0 w-2 h-1 bg-black/60 rounded-full" />
-              <div className="absolute top-0 left-1 w-1 h-1 bg-black/80 rounded-full" />
-            </motion.div>
-            
-            {/* Left arm (holding camera) */}
+            {/* Arms - stick lines */}
             <motion.div
               animate={{ 
-                rotate: isPhotographing ? [-15, -10, -15] : [-10, -5, -10]
+                rotate: isPhotographing ? [-20, -15, -20] : [-10, 10, -10]
               }}
               transition={{ duration: 1.5, repeat: Infinity }}
-              className="absolute top-11 left-1.5 w-2 h-8 bg-gradient-to-b from-black/90 to-black/70 rounded-full origin-top"
+              className="absolute top-7 left-1/2 w-0.5 h-6 bg-white origin-top transform -translate-x-1/2 rotate-[-25deg]"
             />
-            
-            {/* Right arm (supporting camera) */}
             <motion.div
               animate={{ 
-                rotate: isPhotographing ? [20, 25, 20] : [15, 20, 15]
+                rotate: isPhotographing ? [25, 30, 25] : [10, -10, 10]
               }}
               transition={{ duration: 1.5, repeat: Infinity }}
-              className="absolute top-11 right-1.5 w-2 h-8 bg-gradient-to-b from-black/90 to-black/70 rounded-full origin-top"
+              className="absolute top-7 left-1/2 w-0.5 h-6 bg-white origin-top transform -translate-x-1/2 rotate-[25deg]"
             />
+            
+            {/* Camera in hands when photographing */}
+            <AnimatePresence>
+              {isPhotographing && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="absolute top-8 left-1/2 w-2 h-1.5 bg-white rounded-sm transform -translate-x-1/2"
+                />
+              )}
+            </AnimatePresence>
             
             {/* Left leg - walking animation */}
             <motion.div
               animate={{ 
-                rotate: [-8, 8, -8],
-                x: [0, -0.5, 0]
+                rotate: [-15, 15, -15],
+                x: [0, -1, 0]
               }}
-              transition={{ duration: 1.2, repeat: Infinity }}
-              className="absolute bottom-0 left-2 w-3 h-10 bg-gradient-to-b from-black/90 to-black/70 rounded-full origin-top"
+              transition={{ duration: 1, repeat: Infinity }}
+              className="absolute bottom-0 left-1/2 w-0.5 h-8 bg-white origin-top transform -translate-x-1/2 translate-x-[-2px]"
             />
             
             {/* Right leg - walking animation */}
             <motion.div
               animate={{ 
-                rotate: [8, -8, 8],
-                x: [0, 0.5, 0]
+                rotate: [15, -15, 15],
+                x: [0, 1, 0]
               }}
-              transition={{ duration: 1.2, repeat: Infinity }}
-              className="absolute bottom-0 right-2 w-3 h-10 bg-gradient-to-b from-black/90 to-black/70 rounded-full origin-top"
+              transition={{ duration: 1, repeat: Infinity }}
+              className="absolute bottom-0 left-1/2 w-0.5 h-8 bg-white origin-top transform -translate-x-1/2 translate-x-[2px]"
             />
 
-            {/* Feet */}
-            <motion.div
-              animate={{ x: [-0.5, 0.5, -0.5] }}
-              transition={{ duration: 1.2, repeat: Infinity }}
-              className="absolute bottom-0 left-1.5 w-4 h-2 bg-black/80 rounded-full"
-            />
-            <motion.div
-              animate={{ x: [0.5, -0.5, 0.5] }}
-              transition={{ duration: 1.2, repeat: Infinity }}
-              className="absolute bottom-0 right-1.5 w-4 h-2 bg-black/80 rounded-full"
-            />
+            {/* Backpack - simple rectangle */}
+            <div className="absolute top-5 right-1 w-2 h-4 border border-white/70 rounded-sm bg-white/10" />
           </motion.div>
 
           {/* Enhanced camera flash effect */}
@@ -416,14 +388,14 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onGetStarted }) => {
                   }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.8, ease: "easeOut" }}
-                  className="absolute top-12 left-4 w-6 h-6 bg-white rounded-full transform -translate-x-1/2 -translate-y-1/2"
+                  className="absolute top-8 left-1/2 w-6 h-6 bg-white rounded-full transform -translate-x-1/2 -translate-y-1/2"
                   style={{ 
                     boxShadow: '0 0 80px rgba(255,255,255,0.9), 0 0 120px rgba(255,255,255,0.6)' 
                   }}
                 />
                 
                 {/* Flash rays */}
-                {[...Array(8)].map((_, i) => (
+                {[...Array(6)].map((_, i) => (
                   <motion.div
                     key={i}
                     initial={{ scale: 0, opacity: 0 }}
@@ -436,9 +408,9 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onGetStarted }) => {
                       delay: i * 0.05,
                       ease: "easeOut" 
                     }}
-                    className="absolute top-12 left-4 w-1 h-8 bg-white/60 origin-bottom"
+                    className="absolute top-8 left-1/2 w-0.5 h-8 bg-white/60 origin-bottom transform -translate-x-1/2"
                     style={{
-                      transform: `rotate(${i * 45}deg) translateX(-50%) translateY(-50%)`,
+                      rotate: `${i * 60}deg`,
                       transformOrigin: '50% 100%'
                     }}
                   />
@@ -447,31 +419,29 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onGetStarted }) => {
             )}
           </AnimatePresence>
 
-          {/* Enhanced glowing trail with particles */}
+          {/* Simple glowing trail */}
           <motion.div
             animate={{ opacity: [0.3, 0.8, 0.3] }}
             transition={{ duration: 2, repeat: Infinity }}
-            className="absolute -bottom-3 left-1/2 w-8 h-3 bg-gradient-to-r from-transparent via-cyan-400/60 to-transparent rounded-full blur-sm transform -translate-x-1/2"
+            className="absolute -bottom-2 left-1/2 w-6 h-2 bg-gradient-to-r from-transparent via-cyan-400/60 to-transparent rounded-full blur-sm transform -translate-x-1/2"
           />
           
-          {/* Footstep particles */}
+          {/* Footstep dots */}
           <motion.div
             animate={{ 
               opacity: [0, 1, 0],
-              scale: [0.8, 1.2, 0.8],
-              y: [0, -10, -20]
+              scale: [0.5, 1, 0.5]
             }}
-            transition={{ duration: 1.5, repeat: Infinity, delay: 0.5 }}
-            className="absolute -bottom-1 left-3 w-2 h-2 bg-cyan-400/40 rounded-full"
+            transition={{ duration: 1, repeat: Infinity, delay: 0.5 }}
+            className="absolute -bottom-1 left-2 w-1 h-1 bg-cyan-400/60 rounded-full"
           />
           <motion.div
             animate={{ 
               opacity: [0, 1, 0],
-              scale: [0.8, 1.2, 0.8],
-              y: [0, -10, -20]
+              scale: [0.5, 1, 0.5]
             }}
-            transition={{ duration: 1.5, repeat: Infinity, delay: 1.1 }}
-            className="absolute -bottom-1 right-3 w-2 h-2 bg-cyan-400/40 rounded-full"
+            transition={{ duration: 1, repeat: Infinity, delay: 1 }}
+            className="absolute -bottom-1 right-2 w-1 h-1 bg-cyan-400/60 rounded-full"
           />
         </div>
       </motion.div>
